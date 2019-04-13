@@ -1,20 +1,9 @@
-const { html, render, map } = require("./util");
+const { html, render } = require("./util");
+const { loadPageChunk, renderTitle } = require("./notion");
+const jp = require("jsonpath");
 
-function value() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("Human");
-    }, 500);
-  });
-}
-
-function list() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(["toy", "bed", "chair"]);
-    }, 500);
-  });
-}
+// notion page id with our landing page content
+const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
 
 function Page({ children }) {
   return html`
@@ -36,6 +25,11 @@ function Page({ children }) {
 }
 
 module.exports = async (req, res) => {
+  console.time("notion api call");
+  const data = await loadPageChunk({ pageId: PAGE_ID });
+  console.timeEnd("notion api call");
+  const blocks = jp.query(data, "$.recordMap.block.*");
+
   res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
   res.end(
     `<!doctype html>` +
@@ -44,8 +38,12 @@ module.exports = async (req, res) => {
         <${Page}>
           <section class="intro">
             <header>
-              <h1>Paradigm Shift</h1>
-              <p>A free responsive site template designed by <a href="https://twitter.com/ajlkn">@ajlkn</a> / <a href="https://html5up.net">HTML5 UP</a></p>
+              <h1>${renderTitle(
+                jp.value(blocks, "$[0].value.properties.title")
+              )}</h1>
+              <p>${renderTitle(
+                jp.value(blocks, "$[1].value.properties.title")
+              )}</p>
               <ul class="actions">
                 <li><a href="#first" class="arrow scrolly"><span class="label">Next</span></a></li>
               </ul>
