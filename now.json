@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "spr-landing",
+  "builds": [
+    { "src": "main.css", "use": "@now/static" },
+    { "src": "index.js", "use": "@now/node" }
+  ]
+}
