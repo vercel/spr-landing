@@ -1,8 +1,10 @@
 {
   "version": 2,
   "name": "spr-landing",
+  "regions": ["sfo"],
   "builds": [
     { "src": "main.css", "use": "@now/static" },
-    { "src": "index.js", "use": "@now/node" }
+    { "src": "index.js", "use": "@now/node" },
+    { "src": "image.js", "use": "@now/node" }
   ]
 }

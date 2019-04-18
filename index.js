@@ -1,6 +1,5 @@
 const { html, render } = require("./util");
-const { loadPageChunk, renderTitle } = require("./notion");
-const jp = require("jsonpath");
+const { loadPageChunk, renderTitle, query, value } = require("./notion");
 
 // notion page id with our landing page content
 const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
@@ -24,11 +23,47 @@ function Page({ children }) {
   `;
 }
 
+function NotionImage({ src }) {
+  if (src) {
+    return html`
+      <img title="image" src="${`/image.js?url=${encodeURIComponent(src)}`}" />
+    `;
+  } else {
+    return html`<div/>`;
+  }
+}
+
 module.exports = async (req, res) => {
   console.time("notion api call");
   const data = await loadPageChunk({ pageId: PAGE_ID });
   console.timeEnd("notion api call");
-  const blocks = jp.query(data, "$.recordMap.block.*");
+  const blocks = query(data, "$.recordMap.block.*");
+  // const values = query(blocks, '$.*.value.');
+  const images = query(
+    blocks,
+    "$..*[?(@.type === 'image')].format.display_source"
+  );
+
+  const sections = [];
+  let currentSection = null;
+
+  for (const block of blocks) {
+    const value = block.value;
+
+    if (
+      value.type === "page" ||
+      value.type === "header" ||
+      value.type === "sub_header"
+    ) {
+      sections.push(
+        html`
+          test
+        `
+      );
+    }
+
+    const section = sections[sections.length - 1];
+  }
 
   res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
   res.end(
@@ -39,17 +74,19 @@ module.exports = async (req, res) => {
           <section class="intro">
             <header>
               <h1>${renderTitle(
-                jp.value(blocks, "$[0].value.properties.title")
+                query(blocks, "$[0].value.properties.title")
               )}</h1>
               <p>${renderTitle(
-                jp.value(blocks, "$[1].value.properties.title")
+                value(blocks, "$[1].value.properties.title")
               )}</p>
               <ul class="actions">
                 <li><a href="#first" class="arrow scrolly"><span class="label">Next</span></a></li>
               </ul>
             </header>
             <div class="content">
-              <span class="image fill" data-position="center"><img src="images/pic01.jpg" alt="" /></span>
+              <span class="image fill" data-position="center">
+                <${NotionImage} src=${images[0]} />
+              </span>
             </div>
           </section>
           <section id="first">
@@ -58,7 +95,9 @@ module.exports = async (req, res) => {
             </header>
             <div class="content">
               <p><strong>Lorem ipsum dolor</strong> sit amet consectetur adipiscing elit. Duis dapibus rutrum facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam tristique libero eu nibh porttitor amet fermentum. Nullam venenatis erat id vehicula ultrices sed ultricies condimentum. Magna sed etiam consequat, et lorem adipiscing sed nulla. Volutpat nisl et tempus et dolor libero, feugiat magna tempus, sed et lorem adipiscing.</p>
-              <span class="image main"><img src="images/pic02.jpg" alt="" /></span>
+              <span class="image main"><${NotionImage} src=${
+          images[1]
+        } /></span>
             </div>
           </section>
           <section>

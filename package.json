@@ -2,7 +2,7 @@
   "dependencies": {
     "@zeit/fetch": "^5.1.0",
     "htm": "^2.1.1",
-    "jsonpath": "^1.0.1",
+    "jsonpath-plus": "^0.18.0",
     "node-fetch": "^2.3.0",
     "preact": "^8.4.2",
     "preact-render-to-string": "^4.1.0",

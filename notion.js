@@ -1,5 +1,7 @@
 const { html } = require("./util");
+const { JSONPath: jp } = require("jsonpath-plus");
 const fetch = require("@zeit/fetch")(require("node-fetch"));
+const cms = require('tipe')();
 
 async function rpc(fnName, body = {}) {
   const res = await fetch(`https://www.notion.so/api/v3/${fnName}`, {
@@ -76,14 +78,10 @@ exports.renderTitle = title => {
   });
 };
 
-// TEST
-// TODO: delete
-exports
-  .loadPageChunk({
-    pageId: "1a86e7f6-d6a5-4537-a2e5-15650c1888b8"
-  })
-  .then(
-    //data => console.log(JSON.stringify(data)),
-    data => console.log(require("util").inspect(data, { depth: 10 })),
-    console.error
-  );
+exports.query = function jsonPathQuery(json, path) {
+  return jp({ path, json });
+};
+
+exports.value = function jsonPathValue(json, path) {
+  return exports.query(json, path)[0];
+};
