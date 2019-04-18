@@ -1,7 +1,6 @@
 const { html } = require("./util");
 const { JSONPath: jp } = require("jsonpath-plus");
 const fetch = require("@zeit/fetch")(require("node-fetch"));
-const cms = require('tipe')();
 
 async function rpc(fnName, body = {}) {
   const res = await fetch(`https://www.notion.so/api/v3/${fnName}`, {
