@@ -77,9 +77,6 @@ appearance: none;
 
 body {
   -ms-overflow-style: scrollbar;
-  font-family: "MS Comic Sans" !important;
-  background: red;
-  padding: 100px;
 }
 
 @media screen and (max-width: 480px) {
