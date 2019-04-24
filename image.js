@@ -1,4 +1,4 @@
-const fetch = require("@zeit/fetch")(require("node-fetch"));
+const fetch = require("node-fetch");
 const { parse } = require("url");
 
 module.exports = async (req, res) => {
