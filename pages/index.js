@@ -2,48 +2,6 @@ import Layout from "../layouts/index";
 import getNotionData from "../data/notion";
 import { useState, useEffect } from "react";
 
-function renderText(title) {
-  return title.map(chunk => {
-    if (chunk[1] !== undefined && chunk[1][0] === "b") {
-      return <b>{chunk[0]}</b>;
-    } else {
-      return <span>{chunk[0]}</span>;
-    }
-  });
-}
-
-function NotionImage({ src }) {
-  if (src) {
-    return <img title="image" src={src} />;
-  } else {
-    return <div />;
-  }
-}
-
-const useFocus = () => {
-  const [state, setState] = useState(null);
-
-  const onFocusEvent = event => {
-    setState(true);
-  };
-
-  const onBlurEvent = event => {
-    setState(false);
-  };
-
-  useEffect(() => {
-    window.addEventListener("focus", onFocusEvent);
-    window.addEventListener("blur", onBlurEvent);
-
-    return () => {
-      window.removeEventListener("focus", onFocusEvent);
-      window.removeEventListener("blur", onBlurEvent);
-    };
-  });
-
-  return state;
-};
-
 export default function Page({ sections, etag }) {
   const focused = useFocus();
   useEffect(
@@ -100,6 +58,12 @@ export default function Page({ sections, etag }) {
                   </span>
                 ) : subsection.type === "text" ? (
                   <p>{renderText(subsection.value)}</p>
+                ) : subsection.type === "list" ? (
+                  <ul>
+                    {subsection.children.map(child => (
+                      <li>{renderText(child)}</li>
+                    ))}
+                  </ul>
                 ) : null
               )}
             </div>
@@ -108,18 +72,26 @@ export default function Page({ sections, etag }) {
       })}
       <section>
         <header>
-          <h2>Duis sed adpiscing veroeros amet</h2>
+          <h2>Get Started</h2>
         </header>
         <div className="content">
           <p>Get started with Now + Next.js</p>
           <ul className="actions">
             <li>
-              <a href="#" className="button primary large">
+              <a
+                href="https://zeit.co"
+                target="_blank"
+                className="button primary large"
+              >
                 Get Started
               </a>
             </li>
             <li>
-              <a href="#" className="button large">
+              <a
+                href="https://zeit.co/blog/serverless-pre-rendering"
+                target="_blank"
+                className="button large"
+              >
                 Learn More
               </a>
             </li>
@@ -151,4 +123,43 @@ Page.getInitialProps = async ({ res }) => {
   }
 
   return { sections, etag };
+};
+
+function renderText(title) {
+  return title.map(chunk => {
+    let wrapper = <span>{chunk[0]}</span>;
+
+    (chunk[1] || []).forEach(el => {
+      wrapper = React.createElement(el[0], {}, wrapper);
+    });
+
+    return wrapper;
+  });
+}
+
+function NotionImage({ src }) {
+  if (src) {
+    return <img title="image" src={src} />;
+  } else {
+    return <div />;
+  }
+}
+
+const useFocus = () => {
+  const [state, setState] = useState(null);
+  const onFocusEvent = event => {
+    setState(true);
+  };
+  const onBlurEvent = event => {
+    setState(false);
+  };
+  useEffect(() => {
+    window.addEventListener("focus", onFocusEvent);
+    window.addEventListener("blur", onBlurEvent);
+    return () => {
+      window.removeEventListener("focus", onFocusEvent);
+      window.removeEventListener("blur", onBlurEvent);
+    };
+  });
+  return state;
 };

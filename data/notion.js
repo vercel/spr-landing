@@ -17,30 +17,40 @@ export default async function getNotionData() {
       value.type === "header" ||
       value.type === "sub_header"
     ) {
-      console.log("adding", value.properties.title);
       sections.push({ title: value.properties.title, children: [] });
       continue;
     }
 
     const section = sections[sections.length - 1];
+    let list = null;
 
     if (value.type === "image") {
+      list = null;
       const child = {
         type: "image",
         src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`
       };
       section.children.push(child);
     } else if (value.type === "text") {
+      list = null;
       section.children.push({
         type: "text",
         value: value.properties.title
       });
+    } else if (value.type === "bulleted_list") {
+      if (list == null) {
+        list = {
+          type: "list",
+          children: []
+        };
+        section.children.push(list);
+      }
+      list.children.push(value.properties.title);
     } else {
-      console.log(value);
+      list = null;
+      console.log("UNHANDLED", value);
     }
   }
-
-  console.log(sections);
 
   return sections;
 }
