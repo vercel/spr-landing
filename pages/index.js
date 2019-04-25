@@ -32,10 +32,10 @@ export default function Page({ sections }) {
               {i === 0 ? (
                 <>
                   <h1>{renderText(section.title)}</h1>
-                  <ul class="actions">
+                  <ul className="actions">
                     <li>
-                      <a href="#first" class="arrow scrolly">
-                        <span class="label">Next</span>
+                      <a href="#first" className="arrow scrolly">
+                        <span className="label">Next</span>
                       </a>
                     </li>
                   </ul>
@@ -49,7 +49,7 @@ export default function Page({ sections }) {
                 <p>{renderText(section.children[1].value)}</p>
               ) : null}
             </header>
-            <div class="content">
+            <div className="content">
               {console.log(section.title, section.children)}
               {section.children.map(subsection =>
                 subsection.type === "image" ? (
@@ -68,23 +68,23 @@ export default function Page({ sections }) {
         <header>
           <h2>Duis sed adpiscing veroeros amet</h2>
         </header>
-        <div class="content">
+        <div className="content">
           <p>Get started with Now + Next.js</p>
-          <ul class="actions">
+          <ul className="actions">
             <li>
-              <a href="#" class="button primary large">
+              <a href="#" className="button primary large">
                 Get Started
               </a>
             </li>
             <li>
-              <a href="#" class="button large">
+              <a href="#" className="button large">
                 Learn More
               </a>
             </li>
           </ul>
         </div>
       </section>
-      <div class="copyright">
+      <div className="copyright">
         Created by{" "}
         <a href="https://zeit.co" target="_blank">
           ZEIT
