@@ -1,5 +1,6 @@
 import Layout from "../layouts/index";
 import getNotionData from "../data/notion";
+import { useState, useEffect } from "react";
 
 function renderText(title) {
   return title.map(chunk => {
@@ -19,12 +20,55 @@ function NotionImage({ src }) {
   }
 }
 
-export default function Page({ sections }) {
+const useFocus = () => {
+  const [state, setState] = useState(null);
+
+  const onFocusEvent = event => {
+    setState(true);
+  };
+
+  const onBlurEvent = event => {
+    setState(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener("focus", onFocusEvent);
+    window.addEventListener("blur", onBlurEvent);
+
+    return () => {
+      window.removeEventListener("focus", onFocusEvent);
+      window.removeEventListener("blur", onBlurEvent);
+    };
+  });
+
+  return state;
+};
+
+export default function Page({ sections, etag }) {
+  const focused = useFocus();
+  useEffect(
+    () => {
+      if (focused) {
+        fetch(window.location, {
+          headers: {
+            pragma: "no-cache"
+          }
+        }).then(res => {
+          if (res.ok && res.headers.get("x-version") != etag) {
+            window.location.reload();
+          }
+        });
+      }
+    },
+    [focused]
+  );
+
   return (
     <Layout>
       {sections.map((section, i) => {
         return (
           <section
+            key={`section-${i}`}
             className={i === 0 ? "intro" : ""}
             id={i === 1 ? "first" : ""}
           >
@@ -32,6 +76,10 @@ export default function Page({ sections }) {
               {i === 0 ? (
                 <>
                   <h1>{renderText(section.title)}</h1>
+                  {section.children[0] &&
+                  section.children[0].type === "text" ? (
+                    <p>{renderText(section.children[0].value)}</p>
+                  ) : null}
                   <ul className="actions">
                     <li>
                       <a href="#first" className="arrow scrolly">
@@ -43,14 +91,8 @@ export default function Page({ sections }) {
               ) : (
                 <h2>{renderText(section.title)}</h2>
               )}
-              {i === 0 &&
-              section.children[1] &&
-              section.children[1].type === "text" ? (
-                <p>{renderText(section.children[1].value)}</p>
-              ) : null}
             </header>
             <div className="content">
-              {console.log(section.title, section.children)}
               {section.children.map(subsection =>
                 subsection.type === "image" ? (
                   <span className={`image ${i === 0 ? "fill" : "main"}`}>
@@ -97,9 +139,16 @@ export default function Page({ sections }) {
 }
 
 Page.getInitialProps = async ({ res }) => {
+  const sections = await getNotionData();
+  const etag = require("crypto")
+    .createHash("md5")
+    .update(JSON.stringify(sections))
+    .digest("hex");
+
   if (res) {
     res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
+    res.setHeader("X-version", etag);
   }
 
-  return { sections: await getNotionData() };
+  return { sections, etag };
 };
