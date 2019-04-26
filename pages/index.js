@@ -2,7 +2,6 @@ import Layout from "../layouts/index";
 import getNotionData from "../data/notion";
 import { useState, useEffect } from "react";
 
-
 export default function Page({ sections, etag }) {
   const focused = useFocus();
   useEffect(
