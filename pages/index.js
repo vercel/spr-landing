@@ -12,7 +12,7 @@ export default function Page({ sections, etag }) {
             pragma: "no-cache"
           }
         }).then(res => {
-          if (res.ok && res.headers.get("x-version") != etag) {
+          if (res.ok && res.headers.get("x-version") !== etag) {
             window.location.reload();
           }
         });
