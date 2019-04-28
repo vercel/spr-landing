@@ -3,7 +3,7 @@
   "name": "spr-landing",
   "regions": ["sfo"],
   "builds": [
-    { "src": "image.js", "use": "@now/node@canary" },
+    { "src": "image.js", "use": "@now/node@dev" },
     { "src": "package.json", "use": "@now/next@canary" }
   ]
 }

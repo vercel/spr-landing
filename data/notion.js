@@ -7,6 +7,8 @@ export default async function getNotionData() {
   const blocks = values(data.recordMap.block);
 
   const sections = [];
+  let meta = {};
+
   let currentSection = null;
 
   for (const block of blocks) {
@@ -46,13 +48,43 @@ export default async function getNotionData() {
         section.children.push(list);
       }
       list.children.push(value.properties.title);
+    } else if (value.type === "collection_view") {
+      const col = await queryCollection({
+        collectionId: value.collection_id,
+        collectionViewId: value.view_ids[0]
+      });
+      const table = {};
+      const entries = values(col.recordMap.block).filter(
+        block => block.value && block.value.parent_id === value.collection_id
+      );
+      for (const entry of entries) {
+        const props = entry.value.properties;
+
+        // I wonder what `Agd&` is? it seems to be a fixed property
+        // name that refers to the value
+        table[
+          props.title[0][0]
+            .toLowerCase()
+            .trim()
+            .replace(/[ -_]+/, "_")
+        ] = props["Agd&"];
+      }
+
+      if (sections.length === 1) {
+        meta = table;
+      } else {
+        section.children.push({
+          type: "table",
+          value: table
+        });
+      }
     } else {
       list = null;
       console.log("UNHANDLED", value);
     }
   }
 
-  return sections;
+  return { sections, meta };
 }
 
 async function rpc(fnName, body = {}) {
@@ -87,6 +119,54 @@ function getBodyOrNull(res) {
   } catch (err) {
     return null;
   }
+}
+
+function queryCollection({
+  collectionId,
+  collectionViewId,
+  loader = {},
+  query = {}
+}) {
+  const {
+    limit = 70,
+    loadContentCover = true,
+    type = "table",
+    userLocale = "en",
+    userTimeZone = "America/Los_Angeles"
+  } = loader;
+
+  const {
+    aggregate = [
+      {
+        aggregation_type: "count",
+        id: "count",
+        property: "title",
+        type: "title",
+        view_type: "table"
+      }
+    ],
+    filter = [],
+    filter_operator = "and",
+    sort = []
+  } = query;
+
+  return rpc("queryCollection", {
+    collectionId,
+    collectionViewId,
+    loader: {
+      limit,
+      loadContentCover,
+      type,
+      userLocale,
+      userTimeZone
+    },
+    query: {
+      aggregate,
+      filter,
+      filter_operator,
+      sort
+    }
+  });
 }
 
 function loadPageChunk({
