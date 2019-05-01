@@ -131,7 +131,6 @@ export default function Page({ sections, etag, meta }) {
         #wrapper > section:last-of-type > header:after,
         input[type="submit"].primary,
         input[type="reset"].primary,
-        input[type="button"].primary,
         button.primary,
         .button.primary,
         input[type="checkbox"]:checked + label:before,
