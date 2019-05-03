@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "color": "^3.1.1",
+    "fetch-retry": "^2.0.0",
+    "isomorphic-unfetch": "^3.0.0",
+    "next": "^8.1.0",
+    "node-fetch": "^2.3.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}
