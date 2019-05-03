@@ -3284,7 +3284,7 @@ ul.feature-icons li:nth-child(1), ul.feature-icons li:nth-child(2) {
 #wrapper > section.intro > .content {
   background: url('/image.js?url=https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F4fab55f6-ea1c-48e7-b0de-46957d18c9d5%2Fdaniel2.jpg');
   background-size: cover;
-  height: 850px;
+  height: 100%;
   max-width: none;
 }
 
