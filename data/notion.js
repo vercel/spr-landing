@@ -35,10 +35,12 @@ export default async function getNotionData() {
       section.children.push(child);
     } else if (value.type === "text") {
       list = null;
-      section.children.push({
-        type: "text",
-        value: value.properties.title
-      });
+      if (value.properties) {
+        section.children.push({
+          type: "text",
+          value: value.properties.title
+        });
+      }
     } else if (value.type === "bulleted_list") {
       if (list == null) {
         list = {

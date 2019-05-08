@@ -5,8 +5,6 @@ import Color from "color";
 import Head from "next/head";
 
 export default function Page({ sections, etag, meta }) {
-  console.log(meta);
-
   const focused = useFocus();
   useEffect(
     () => {
