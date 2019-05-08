@@ -4,6 +4,8 @@
   "regions": ["sfo"],
   "builds": [
     { "src": "image.js", "use": "@now/node" },
+    { "src": "notion/loadPageChunk.js", "use": "@now/node"},
+    { "src": "notion/queryCollection.js", "use": "@now/node"},
     { "src": "package.json", "use": "@now/next" }
   ]
 }

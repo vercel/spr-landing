@@ -1,8 +1,120 @@
 import Layout from "../layouts/index";
-import getNotionData from "../data/notion";
 import { useState, useEffect } from "react";
 import Color from "color";
 import Head from "next/head";
+import fetch from "isomorphic-unfetch";
+
+const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
+
+async function getNotionData(req) {
+  const baseUrl = process.env.DEV ? 'http://localhost:3000' : req ? `https://${req.headers.host}` : '';
+
+  const res = await fetch(`${baseUrl}/notion/loadPageChunk.js`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({ pageId: PAGE_ID })
+  });
+  const data = await res.json();
+  const blocks = values(data.recordMap.block);
+
+  const sections = [];
+  let meta = {};
+
+  for (const block of blocks) {
+    const value = block.value;
+
+    if (
+      value.type === "page" ||
+      value.type === "header" ||
+      value.type === "sub_header"
+    ) {
+      sections.push({ title: value.properties.title, children: [] });
+      continue;
+    }
+
+    const section = sections[sections.length - 1];
+    let list = null;
+
+    if (value.type === "image") {
+      list = null;
+      const child = {
+        type: "image",
+        src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`
+      };
+      section.children.push(child);
+    } else if (value.type === "text") {
+      list = null;
+      if (value.properties) {
+        section.children.push({
+          type: "text",
+          value: value.properties.title
+        });
+      }
+    } else if (value.type === "bulleted_list") {
+      if (list == null) {
+        list = {
+          type: "list",
+          children: []
+        };
+        section.children.push(list);
+      }
+      list.children.push(value.properties.title);
+    } else if (value.type === "collection_view") {
+      const colRes = await fetch(`${baseUrl}/notion/queryCollection.js`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          collectionId: value.collection_id,
+          collectionViewId: value.view_ids[0]
+        })
+      });
+      const col = await colRes.json();
+      const table = {};
+      const entries = values(col.recordMap.block).filter(
+        block => block.value && block.value.parent_id === value.collection_id
+      );
+      for (const entry of entries) {
+        const props = entry.value.properties;
+
+        // I wonder what `Agd&` is? it seems to be a fixed property
+        // name that refers to the value
+        table[
+          props.title[0][0]
+            .toLowerCase()
+            .trim()
+            .replace(/[ -_]+/, "_")
+        ] = props["Agd&"];
+      }
+
+      if (sections.length === 1) {
+        meta = table;
+      } else {
+        section.children.push({
+          type: "table",
+          value: table
+        });
+      }
+    } else {
+      list = null;
+      console.log("UNHANDLED", value);
+    }
+  }
+
+  return { sections, meta };
+}
+
+function values(obj) {
+  const vals = [];
+  for (const key in obj) {
+    vals.push(obj[key]);
+  }
+  return vals;
+}
+
 
 export default function Page({ sections, etag, meta }) {
   const focused = useFocus();
@@ -48,9 +160,9 @@ export default function Page({ sections, etag, meta }) {
                 <>
                   <h1>{renderText(section.title)}</h1>
                   {section.children[0] &&
-                  section.children[0].type === "text" ? (
-                    <p>{renderText(section.children[0].value)}</p>
-                  ) : null}
+                    section.children[0].type === "text" ? (
+                      <p>{renderText(section.children[0].value)}</p>
+                    ) : null}
                   <ul className="actions">
                     <li>
                       <a href="#first" className="arrow scrolly">
@@ -60,8 +172,8 @@ export default function Page({ sections, etag, meta }) {
                   </ul>
                 </>
               ) : (
-                <h2>{renderText(section.title)}</h2>
-              )}
+                  <h2>{renderText(section.title)}</h2>
+                )}
             </header>
             <div className="content">
               {section.children.map(subsection =>
@@ -166,8 +278,8 @@ export default function Page({ sections, etag, meta }) {
   );
 }
 
-Page.getInitialProps = async ({ res }) => {
-  const notionData = await getNotionData();
+Page.getInitialProps = async ({ req, res }) => {
+  const notionData = await getNotionData(req);
   const etag = require("crypto")
     .createHash("md5")
     .update(JSON.stringify(notionData))
