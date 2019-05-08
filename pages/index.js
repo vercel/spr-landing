@@ -1,29 +1,30 @@
-import Layout from "../layouts/index";
-import getNotionData from "../data/notion";
-import { useState, useEffect } from "react";
-import Color from "color";
-import Head from "next/head";
+import { useEffect } from 'react';
+import Color from 'color';
+import Head from 'next/head';
 
-export default function Page({ sections, etag, meta }) {
+import Layout from '../src/layouts/index';
+import getNotionData from '../src/data/notion';
+import useFocus from '../src/hooks/useFocus';
+import Section from '../src/components/Section';
+
+const Page = ({ sections, etag, meta }) => {
   const focused = useFocus();
-  useEffect(
-    () => {
-      if (focused) {
-        fetch(window.location, {
-          headers: {
-            pragma: "no-cache"
-          }
-        }).then(res => {
-          if (res.ok && res.headers.get("x-version") !== etag) {
-            window.location.reload();
-          }
-        });
-      }
-    },
-    [focused]
-  );
 
-  const color = Color(meta.color ? meta.color[0][0] : "#49fcd4");
+  useEffect(() => {
+    if (focused) {
+      fetch(window.location, {
+        headers: {
+          pragma: 'no-cache'
+        }
+      }).then(res => {
+        if (res.ok && res.headers.get('x-version') !== etag) {
+          window.location.reload();
+        }
+      });
+    }
+  }, [focused]);
+
+  const color = Color(meta.color ? meta.color[0][0] : '#49fcd4');
   const color2 = color.darken(0.4);
   const color3 = color2.lighten(0.1);
 
@@ -31,60 +32,13 @@ export default function Page({ sections, etag, meta }) {
     <Layout>
       <Head>
         {meta.title && <title>{meta.title[0][0]}</title>}
-        {meta.description && (
-          <meta name="description" content={meta.description[0][0]} />
-        )}
+        {meta.description && <meta name="description" content={meta.description[0][0]} />}
       </Head>
 
-      {sections.map((section, i) => {
-        return (
-          <section
-            key={`section-${i}`}
-            className={i === 0 ? "intro" : ""}
-            id={i === 1 ? "first" : ""}
-          >
-            <header>
-              {i === 0 ? (
-                <>
-                  <h1>{renderText(section.title)}</h1>
-                  {section.children[0] &&
-                  section.children[0].type === "text" ? (
-                    <p>{renderText(section.children[0].value)}</p>
-                  ) : null}
-                  <ul className="actions">
-                    <li>
-                      <a href="#first" className="arrow scrolly">
-                        <span className="label">Next</span>
-                      </a>
-                    </li>
-                  </ul>
-                </>
-              ) : (
-                <h2>{renderText(section.title)}</h2>
-              )}
-            </header>
-            <div className="content">
-              {section.children.map(subsection =>
-                subsection.type === "image" ? (
-                  <span className={`image ${i === 0 ? "fill" : "main"}`}>
-                    <NotionImage src={subsection.src} />
-                  </span>
-                ) : subsection.type === "text" ? (
-                  i !== 0 && <p>{renderText(subsection.value)}</p>
-                ) : subsection.type === "list" ? (
-                  i !== 0 && (
-                    <ul>
-                      {subsection.children.map(child => (
-                        <li>{renderText(child)}</li>
-                      ))}
-                    </ul>
-                  )
-                ) : null
-              )}
-            </div>
-          </section>
-        );
-      })}
+      {sections.map((section, i) => (
+        <Section key={i} {...{ section, i }} />
+      ))}
+
       <section>
         <header>
           <h2>Get Started</h2>
@@ -93,11 +47,7 @@ export default function Page({ sections, etag, meta }) {
           <p>Get started with Now + Next.js</p>
           <ul className="actions">
             <li>
-              <a
-                href="https://zeit.co"
-                target="_blank"
-                className="button primary large"
-              >
+              <a href="https://zeit.co" target="_blank" className="button primary large">
                 Get Started
               </a>
             </li>
@@ -114,12 +64,11 @@ export default function Page({ sections, etag, meta }) {
         </div>
       </section>
       <div className="copyright">
-        Created by{" "}
+        Created by{' '}
         <a href="https://zeit.co" target="_blank">
           ZEIT
-        </a>{" "}
-        &mdash; Template Design by:{" "}
-        <a href="https://html5up.net/license">HTML5 UP</a>.
+        </a>{' '}
+        &mdash; Template Design by: <a href="https://html5up.net/license">HTML5 UP</a>.
       </div>
 
       <style jsx global>{`
@@ -164,58 +113,21 @@ export default function Page({ sections, etag, meta }) {
       `}</style>
     </Layout>
   );
-}
+};
 
 Page.getInitialProps = async ({ res }) => {
   const notionData = await getNotionData();
-  const etag = require("crypto")
-    .createHash("md5")
+  const etag = require('crypto')
+    .createHash('md5')
     .update(JSON.stringify(notionData))
-    .digest("hex");
+    .digest('hex');
 
   if (res) {
-    res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
-    res.setHeader("X-version", etag);
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
+    res.setHeader('X-version', etag);
   }
 
   return { ...notionData, etag };
 };
 
-function renderText(title) {
-  return title.map(chunk => {
-    let wrapper = <span>{chunk[0]}</span>;
-
-    (chunk[1] || []).forEach(el => {
-      wrapper = React.createElement(el[0], {}, wrapper);
-    });
-
-    return wrapper;
-  });
-}
-
-function NotionImage({ src }) {
-  if (src) {
-    return <img title="image" src={src} />;
-  } else {
-    return <div />;
-  }
-}
-
-const useFocus = () => {
-  const [state, setState] = useState(null);
-  const onFocusEvent = event => {
-    setState(true);
-  };
-  const onBlurEvent = event => {
-    setState(false);
-  };
-  useEffect(() => {
-    window.addEventListener("focus", onFocusEvent);
-    window.addEventListener("blur", onBlurEvent);
-    return () => {
-      window.removeEventListener("focus", onFocusEvent);
-      window.removeEventListener("blur", onBlurEvent);
-    };
-  });
-  return state;
-};
+export default Page;
