@@ -168,6 +168,7 @@ export default function Page({ sections, etag, meta }) {
 
 Page.getInitialProps = async ({ res }) => {
   const notionData = await getNotionData();
+  console.log('notion data', notionData)
   const etag = require("crypto")
     .createHash("md5")
     .update(JSON.stringify(notionData))
