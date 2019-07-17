@@ -1,6 +1,6 @@
 import fetch from "isomorphic-unfetch";
 
-const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
+const PAGE_ID = "e1100c65-9ec9-4816-8e2e-641bc44fd227";
 
 export default async function getNotionData() {
   const data = await loadPageChunk({ pageId: PAGE_ID });
