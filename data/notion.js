@@ -60,25 +60,27 @@ export default async function getNotionData() {
         block => block.value && block.value.parent_id === value.collection_id
       );
       for (const entry of entries) {
-        const props = entry.value.properties;
+      	if (entry.value.properties) {
+          const props = entry.value.properties;
+          
+          // I wonder what `Agd&` is? it seems to be a fixed property
+          // name that refers to the value
+          table[
+            props.title[0][0]
+              .toLowerCase()
+              .trim()
+              .replace(/[ -_]+/, "_")
+          ] = props["Agd&"];
+        }
 
-        // I wonder what `Agd&` is? it seems to be a fixed property
-        // name that refers to the value
-        table[
-          props.title[0][0]
-            .toLowerCase()
-            .trim()
-            .replace(/[ -_]+/, "_")
-        ] = props["Agd&"];
-      }
-
-      if (sections.length === 1) {
-        meta = table;
-      } else {
-        section.children.push({
-          type: "table",
-          value: table
-        });
+        if (sections.length === 1) {
+          meta = table;
+        } else {
+          section.children.push({
+            type: "table",
+            value: table
+          });
+        }
       }
     } else {
       list = null;
