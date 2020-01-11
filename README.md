@@ -34,6 +34,9 @@ We recommend setting up the [Now for GitHub](https://zeit.co/github) or [Now for
 
 This allows you to simply push your code to deploy.
 
+## More Examples
+
+- [Notion Blog](https://github.com/ijjk/notion-blog)
 
 ## About
 
@@ -45,7 +48,3 @@ Follow us on [Twitter](https://twitter.com/zeithq).
 <br/>
 
 [![](https://assets.zeit.co/image/upload/v1556749970/repositories/vrs/zeit.svg)](https://zeit.co)
-
-## More Examples
-
-- [Notion Blog](https://github.com/ijjk/notion-blog)
