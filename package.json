@@ -1,11 +1,23 @@
 {
+  "name": "spr-landing",
+  "version": "1.0.0",
+  "repository": "git@github.com:zeit/spr-landing",
+  "license": "MIT",
+  "scripts": {
+    "build": "next build",
+    "start": "next start",
+    "dev": "next dev"
+  },
   "dependencies": {
-    "color": "^3.1.1",
-    "fetch-retry": "^2.0.0",
-    "isomorphic-unfetch": "^3.0.0",
-    "next": "^8.1.0",
-    "node-fetch": "^2.3.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "color": "^3.1.2",
+    "next": "^9.1.8-canary.13",
+    "node-fetch": "^2.6.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.6",
+    "@types/react": "^16.9.17",
+    "typescript": "^3.7.4"
   }
 }

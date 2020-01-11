@@ -1,6 +1,6 @@
-import fetch from "isomorphic-unfetch";
-
-const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
+import rpc, { values } from './rpc'
+import { PAGE_ID } from './server-constants'
+import queryCollection from './queryCollection'
 
 export default async function getNotionData() {
   const data = await loadPageChunk({ pageId: PAGE_ID });
@@ -8,8 +8,6 @@ export default async function getNotionData() {
 
   const sections = [];
   let meta = {};
-
-  let currentSection = null;
 
   for (const block of blocks) {
     const value = block.value;
@@ -30,7 +28,9 @@ export default async function getNotionData() {
       list = null;
       const child = {
         type: "image",
-        src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`
+        src: `/api/asset?assetUrl=${encodeURIComponent(
+          value.format.display_source as any
+        )}&blockId=${value.id}`
       };
       section.children.push(child);
     } else if (value.type === "text") {
@@ -60,9 +60,9 @@ export default async function getNotionData() {
         block => block.value && block.value.parent_id === value.collection_id
       );
       for (const entry of entries) {
-      	if (entry.value.properties) {
+        if (entry.value.properties) {
           const props = entry.value.properties;
-          
+
           // I wonder what `Agd&` is? it seems to be a fixed property
           // name that refers to the value
           table[
@@ -91,108 +91,18 @@ export default async function getNotionData() {
   return { sections, meta };
 }
 
-async function rpc(fnName, body = {}) {
-  const res = await fetch(`https://www.notion.so/api/v3/${fnName}`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json"
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (res.ok) {
-    return res.json();
-  } else {
-    throw new Error(await getError(res));
-  }
-}
-
-async function getError(res) {
-  return `Notion API error (${res.status}) \n${getJSONHeaders(
-    res
-  )}\n ${await getBodyOrNull(res)}`;
-}
-
-function getJSONHeaders(res) {
-  return JSON.stringify(res.headers.raw());
-}
-
-function getBodyOrNull(res) {
-  try {
-    return res.text();
-  } catch (err) {
-    return null;
-  }
-}
-
-function queryCollection({
-  collectionId,
-  collectionViewId,
-  loader = {},
-  query = {}
-}) {
-  const {
-    limit = 70,
-    loadContentCover = true,
-    type = "table",
-    userLocale = "en",
-    userTimeZone = "America/Los_Angeles"
-  } = loader;
-
-  const {
-    aggregate = [
-      {
-        aggregation_type: "count",
-        id: "count",
-        property: "title",
-        type: "title",
-        view_type: "table"
-      }
-    ],
-    filter = [],
-    filter_operator = "and",
-    sort = []
-  } = query;
-
-  return rpc("queryCollection", {
-    collectionId,
-    collectionViewId,
-    loader: {
-      limit,
-      loadContentCover,
-      type,
-      userLocale,
-      userTimeZone
-    },
-    query: {
-      aggregate,
-      filter,
-      filter_operator,
-      sort
-    }
-  });
-}
-
-function loadPageChunk({
+export function loadPageChunk({
   pageId,
   limit = 100,
   cursor = { stack: [] },
   chunkNumber = 0,
-  verticalColumns = false
-}) {
-  return rpc("loadPageChunk", {
+  verticalColumns = false,
+}: any) {
+  return rpc('loadPageChunk', {
     pageId,
     limit,
     cursor,
     chunkNumber,
-    verticalColumns
-  });
-}
-
-function values(obj) {
-  const vals = [];
-  for (const key in obj) {
-    vals.push(obj[key]);
-  }
-  return vals;
+    verticalColumns,
+  })
 }

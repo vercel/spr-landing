@@ -1,8 +1,8 @@
-import Layout from "../layouts/index";
-import getNotionData from "../data/notion";
-import { useState, useEffect } from "react";
 import Color from "color";
 import Head from "next/head";
+import Layout from "../layouts/index";
+import { useState, useEffect } from "react";
+import getNotionData from '../lib/notion'
 
 export default function Page({ sections, etag, meta }) {
   const focused = useFocus();
@@ -13,11 +13,13 @@ export default function Page({ sections, etag, meta }) {
           headers: {
             pragma: "no-cache"
           }
-        }).then(res => {
-          if (res.ok && res.headers.get("x-version") !== etag) {
+        }).then(async res => {
+          const text = await res.text()
+
+          if (text.indexOf(etag) === -1) {
             window.location.reload();
           }
-        });
+        }).catch(() => {});
       }
     },
     [focused]
@@ -166,20 +168,23 @@ export default function Page({ sections, etag, meta }) {
   );
 }
 
-Page.getInitialProps = async ({ res }) => {
-  const notionData = await getNotionData();
-  console.log('notion data', notionData)
+export async function unstable_getStaticProps() {
+  const notionData = await getNotionData()
+  const { sections, meta } = notionData
+
   const etag = require("crypto")
     .createHash("md5")
     .update(JSON.stringify(notionData))
     .digest("hex");
 
-  if (res) {
-    res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
-    res.setHeader("X-version", etag);
+  return {
+    props: {
+      etag,
+      meta,
+      sections,
+    },
+    revalidate: 1
   }
-
-  return { ...notionData, etag };
 };
 
 function renderText(title) {

@@ -3376,7 +3376,7 @@ ul.feature-icons li:nth-child(2) {
 }
 
 #wrapper > section.intro > .content {
-	background: url("/image.js?url=https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F4fab55f6-ea1c-48e7-b0de-46957d18c9d5%2Fdaniel2.jpg");
+	background: url("/api/asset?assetUrl=https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F4fab55f6-ea1c-48e7-b0de-46957d18c9d5%2Fdaniel2.jpg&blockId=a164ffe1-96d4-425e-b739-d7d22808df78");
 	background-size: cover;
 	min-height: 1000px;
 	height: 100%;
