@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import { getError } from './rpc'
 import { NextApiResponse } from 'next'
 import { API_ENDPOINT } from './server-constants'
