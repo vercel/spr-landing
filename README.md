@@ -5,7 +5,7 @@
 <div align="center">
 <a href="https://vercel.com/blog/serverless-pre-rendering">Read the blog post</a>
 <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-<a href="https://spr.vercel.app">Checkout the demo</a>
+<a href="https://spr-landing.zeit.sh">Checkout the demo</a>
 </div>
 
 ## Developing
