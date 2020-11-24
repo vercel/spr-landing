@@ -1,7 +1,7 @@
 import Color from 'color'
 import Head from 'next/head'
 import Layout from '../layouts/index'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import getNotionData from '../lib/notion'
 
 export default function Page({ sections, etag, meta }) {
