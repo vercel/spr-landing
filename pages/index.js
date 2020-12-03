@@ -1,33 +1,32 @@
-import Color from "color";
-import Head from "next/head";
-import Layout from "../layouts/index";
-import { useState, useEffect } from "react";
+import Color from 'color'
+import Head from 'next/head'
+import Layout from '../layouts/index'
+import React, { useState, useEffect } from 'react'
 import getNotionData from '../lib/notion'
 
 export default function Page({ sections, etag, meta }) {
-  const focused = useFocus();
-  useEffect(
-    () => {
-      if (focused) {
-        fetch(window.location, {
-          headers: {
-            pragma: "no-cache"
-          }
-        }).then(async res => {
+  const focused = useFocus()
+  useEffect(() => {
+    if (focused) {
+      fetch(window.location, {
+        headers: {
+          pragma: 'no-cache',
+        },
+      })
+        .then(async (res) => {
           const text = await res.text()
 
           if (text.indexOf(etag) === -1) {
-            window.location.reload();
+            window.location.reload()
           }
-        }).catch(() => {});
-      }
-    },
-    [focused]
-  );
+        })
+        .catch(() => {})
+    }
+  }, [focused])
 
-  const color = Color(meta.color ? meta.color[0][0] : "#49fcd4");
-  const color2 = color.darken(0.4);
-  const color3 = color2.lighten(0.1);
+  const color = Color(meta.color ? meta.color[0][0] : '#49fcd4')
+  const color2 = color.darken(0.4)
+  const color3 = color2.lighten(0.1)
 
   return (
     <Layout>
@@ -42,15 +41,15 @@ export default function Page({ sections, etag, meta }) {
         return (
           <section
             key={`section-${i}`}
-            className={i === 0 ? "intro" : ""}
-            id={i === 1 ? "first" : ""}
+            className={i === 0 ? 'intro' : ''}
+            id={i === 1 ? 'first' : ''}
           >
             <header>
               {i === 0 ? (
                 <>
                   <h1>{renderText(section.title)}</h1>
                   {section.children[0] &&
-                  section.children[0].type === "text" ? (
+                  section.children[0].type === 'text' ? (
                     <p>{renderText(section.children[0].value)}</p>
                   ) : null}
                   <ul className="actions">
@@ -66,17 +65,17 @@ export default function Page({ sections, etag, meta }) {
               )}
             </header>
             <div className="content">
-              {section.children.map(subsection =>
-                subsection.type === "image" ? (
-                  <span className={`image ${i === 0 ? "fill" : "main"}`}>
+              {section.children.map((subsection) =>
+                subsection.type === 'image' ? (
+                  <span className={`image ${i === 0 ? 'fill' : 'main'}`}>
                     <NotionImage src={subsection.src} />
                   </span>
-                ) : subsection.type === "text" ? (
+                ) : subsection.type === 'text' ? (
                   i !== 0 && <p>{renderText(subsection.value)}</p>
-                ) : subsection.type === "list" ? (
+                ) : subsection.type === 'list' ? (
                   i !== 0 && (
                     <ul>
-                      {subsection.children.map(child => (
+                      {subsection.children.map((child) => (
                         <li>{renderText(child)}</li>
                       ))}
                     </ul>
@@ -85,18 +84,18 @@ export default function Page({ sections, etag, meta }) {
               )}
             </div>
           </section>
-        );
+        )
       })}
       <section>
         <header>
           <h2>Get Started</h2>
         </header>
         <div className="content">
-          <p>Get started with Now + Next.js</p>
+          <p>Get started with Vercel + Next.js</p>
           <ul className="actions">
             <li>
               <a
-                href="https://zeit.co"
+                href="https://vercel.com"
                 target="_blank"
                 className="button primary large"
               >
@@ -105,7 +104,7 @@ export default function Page({ sections, etag, meta }) {
             </li>
             <li>
               <a
-                href="https://zeit.co/blog/serverless-pre-rendering"
+                href="https://vercel.com/blog/serverless-pre-rendering"
                 target="_blank"
                 className="button large"
               >
@@ -116,43 +115,45 @@ export default function Page({ sections, etag, meta }) {
         </div>
       </section>
       <div className="copyright">
-        Created by{" "}
-        <a href="https://zeit.co" target="_blank">
-          ZEIT
-        </a>{" "}
-        &mdash; Template Design by:{" "}
+        Created by{' '}
+        <a href="https://vercel.com" target="_blank">
+          Vercel
+        </a>{' '}
+        &mdash; Template Design by:{' '}
         <a href="https://html5up.net/license">HTML5 UP</a>.
       </div>
 
       <style jsx global>{`
         #wrapper > section > header:before,
-        #wrapper > section > header h1:after, #wrapper > section > header h2:after,
-        #wrapper > section > header h1:before, #wrapper > section > header h2:before,
+        #wrapper > section > header h1:after,
+        #wrapper > section > header h2:after,
+        #wrapper > section > header h1:before,
+        #wrapper > section > header h2:before,
         #wrapper > section:last-of-type > header:after,
-        input[type="submit"].primary,
-        input[type="reset"].primary,
+        input[type='submit'].primary,
+        input[type='reset'].primary,
         button.primary,
         .button.primary,
-        input[type="checkbox"]:checked + label:before,
-        input[type="radio"]:checked + label:before,
-        input[type="checkbox"]:focus + label:before,
-        input[type="radio"]:focus + label:before {
+        input[type='checkbox']:checked + label:before,
+        input[type='radio']:checked + label:before,
+        input[type='checkbox']:focus + label:before,
+        input[type='radio']:focus + label:before {
           background-color: ${color3.hex()};
           border-color: ${color3.hex()};
         }
 
-        input[type="submit"]:hover,
-        input[type="reset"]:hover,
-        input[type="button"]:hover,
+        input[type='submit']:hover,
+        input[type='reset']:hover,
+        input[type='button']:hover,
         button:hover,
         .button:hover {
           box-shadow: inset 0 0 0 2px ${color3.hex()};
           color: ${color3.hex()} !important;
         }
 
-        input[type="submit"].primary:hover,
-        input[type="reset"].primary:hover,
-        input[type="button"].primary:hover,
+        input[type='submit'].primary:hover,
+        input[type='reset'].primary:hover,
+        input[type='button'].primary:hover,
         button.primary:hover,
         .button.primary:hover {
           background-color: ${color2.hex()};
@@ -165,17 +166,17 @@ export default function Page({ sections, etag, meta }) {
         }
       `}</style>
     </Layout>
-  );
+  )
 }
 
-export async function unstable_getStaticProps() {
+export async function getStaticProps() {
   const notionData = await getNotionData()
   const { sections, meta } = notionData
 
-  const etag = require("crypto")
-    .createHash("md5")
+  const etag = require('crypto')
+    .createHash('md5')
     .update(JSON.stringify(notionData))
-    .digest("hex");
+    .digest('hex')
 
   return {
     props: {
@@ -183,45 +184,45 @@ export async function unstable_getStaticProps() {
       meta,
       sections,
     },
-    revalidate: 1
+    revalidate: 1,
   }
-};
+}
 
 function renderText(title) {
-  return title.map(chunk => {
-    let wrapper = <span>{chunk[0]}</span>;
+  return title.map((chunk) => {
+    let wrapper = <span>{chunk[0]}</span>
 
-    (chunk[1] || []).forEach(el => {
-      wrapper = React.createElement(el[0], {}, wrapper);
-    });
+    ;(chunk[1] || []).forEach((el) => {
+      wrapper = React.createElement(el[0], {}, wrapper)
+    })
 
-    return wrapper;
-  });
+    return wrapper
+  })
 }
 
 function NotionImage({ src }) {
   if (src) {
-    return <img title="image" src={src} />;
+    return <img title="image" src={src} />
   } else {
-    return <div />;
+    return <div />
   }
 }
 
 const useFocus = () => {
-  const [state, setState] = useState(null);
-  const onFocusEvent = event => {
-    setState(true);
-  };
-  const onBlurEvent = event => {
-    setState(false);
-  };
+  const [state, setState] = useState(null)
+  const onFocusEvent = (event) => {
+    setState(true)
+  }
+  const onBlurEvent = (event) => {
+    setState(false)
+  }
   useEffect(() => {
-    window.addEventListener("focus", onFocusEvent);
-    window.addEventListener("blur", onBlurEvent);
+    window.addEventListener('focus', onFocusEvent)
+    window.addEventListener('blur', onBlurEvent)
     return () => {
-      window.removeEventListener("focus", onFocusEvent);
-      window.removeEventListener("blur", onBlurEvent);
-    };
-  });
-  return state;
-};
+      window.removeEventListener('focus', onFocusEvent)
+      window.removeEventListener('blur', onBlurEvent)
+    }
+  })
+  return state
+}
