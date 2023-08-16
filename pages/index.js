@@ -124,6 +124,9 @@ export default function Page({ sections, etag, meta }) {
       </div>
 
       <style jsx global>{`
+        *{
+          scroll-behavior: smooth;
+        }
         #wrapper > section > header:before,
         #wrapper > section > header h1:after,
         #wrapper > section > header h2:after,
